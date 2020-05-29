@@ -5,5 +5,5 @@ import pl.dmcs.mariagryglewska.model.Song;
 
 public interface SongRepository extends JpaRepository<Song, Integer> {
         Song findById(Long id);
-        void deleteById(Long id);
+        void deleteById(long id);
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.dmcs.mariagryglewska.model.Song;
 import pl.dmcs.mariagryglewska.repository.SongRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
@@ -30,10 +31,16 @@ public class SongRESTController {
         return SongRepository.findById(id);
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteSongById(@PathVariable("id") Long id) {
+    public ResponseEntity<Song> deleteSongById(@PathVariable("id") long id) {
+        Song contact = SongRepository.findById(id);
+        if (contact == null) {
+            System.out.println("Contact not found!");
+            return new ResponseEntity<Song>(HttpStatus.NOT_FOUND);
+        }
         SongRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<Song>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("")
