@@ -3,6 +3,7 @@ package pl.dmcs.mariagryglewska.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import pl.dmcs.mariagryglewska.model.Playlist;
 import pl.dmcs.mariagryglewska.model.Song;
@@ -11,6 +12,7 @@ import pl.dmcs.mariagryglewska.repository.PlaylistRepository;
 import pl.dmcs.mariagryglewska.repository.SongRepository;
 import pl.dmcs.mariagryglewska.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -35,20 +37,23 @@ public class UserRESTController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/{id}/playlists")
-    public List<Playlist> getPlaylistsFromUser(@PathVariable("id") Long id) {
-        return userRepository.findById(id).getPlaylists();
+    @GetMapping("/{username}/playlists")
+    public List<Playlist> getPlaylistsFromUser(@PathVariable("username") String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found with -> username: " + username));
+        return user.getPlaylists();
     }
 
-    @GetMapping("/{userId}/playlists/{playlistId}")
+    @GetMapping("/{username}/playlists/{playlistId}")
     public Playlist getPlaylistById(@PathVariable("playlistId") Long playlistId) {
         return playlistRepository.findById(playlistId);
     }
 
-    @PostMapping("/{userId}/playlists")
+    @PostMapping("/{username}/playlists")
     public ResponseEntity<?> addPlaylistToUser(@RequestBody Playlist playlist,
-                                           @PathVariable("userId") Long userId) {
-        User user = userRepository.findById(userId);
+                                           @PathVariable("username") String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found with -> username: " + username));
         user.getPlaylists().add(playlist);
         userRepository.save(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -64,11 +69,12 @@ public class UserRESTController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}/playlists/{playlistId}")
-    public ResponseEntity<?> deletePlaylistById(@PathVariable("id") Long id,
+    @DeleteMapping("/{username}/playlists/{playlistId}")
+    public ResponseEntity<?> deletePlaylistById(@PathVariable("username") String username,
                                             @PathVariable("playlistId") Long playlistId) {
         Playlist playlist = playlistRepository.findById(playlistId);
-        User user = userRepository.findById(id);
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User Not Found with -> username: " + username));
         user.getPlaylists().remove(playlist);
         userRepository.save(user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
