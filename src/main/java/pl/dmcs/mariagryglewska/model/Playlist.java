@@ -12,7 +12,7 @@ public class Playlist {
     private String name;
     private String image;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(cascade = CascadeType.REMOVE)
     private List<Song> songs;
 
     public Playlist(String name, String image) {

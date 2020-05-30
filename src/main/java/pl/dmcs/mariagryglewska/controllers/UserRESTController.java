@@ -59,13 +59,15 @@ public class UserRESTController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PostMapping("/{userId}/playlists/{playlistId}/songs/{songId}")
+    @PostMapping("/{username}/playlists/{playlistId}/songs/{songId}")
     public ResponseEntity<?> addSongToPlaylist(@PathVariable("songId") Long songId,
                                               @PathVariable("playlistId") Long playlistId) {
         Song song = songRepository.findById(songId);
         Playlist playlist = playlistRepository.findById(playlistId);
-        playlist.getSongs().add(song);
-        playlistRepository.save(playlist);
+        if (!playlist.getSongs().contains(song)) {
+            playlist.getSongs().add(song);
+            playlistRepository.save(playlist);
+        }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -80,7 +82,7 @@ public class UserRESTController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}/playlist/{playlistId}/songs/{songId}")
+    @DeleteMapping("/{username}/playlists/{playlistId}/songs/{songId}")
     public ResponseEntity<?> deleteSongById(@PathVariable("playlistId") Long playlistId,
                                                @PathVariable("songId") Long songId) {
         Song song = songRepository.findById(songId);
